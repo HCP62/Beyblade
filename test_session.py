@@ -19,8 +19,22 @@ class TestSession:
     
     def start_session(self):
         for i in range(10):
+            match.increment_battles()
             match = Match(self._bey1, self._bey2)
-            
+            print("Enter 1 for your beyblade, 2 for your opponent's beyblade")
+            win = int(input())
+            print("Enter the type of victory")
+            wt = ""
+            while not(wt == "spin" or wt == "over" or 
+                      wt == "burst" or wt == "x"):
+                wt = input()
+            if (win == 1):
+                self._bey1.add_win(wt)
+            elif (win == 2):
+                self._bey2.add_win(wt)
+
+    def calc_wr(self):
+        return float(len(self._bey1.get_wins()) / len(self._total_battles)) * 100
     
-    def calc_wr(self, bey):
-        return len(bey.get_wins()) / len(self._total_battles)
+    def calc_by_type(self, wt):
+        return float(self._bey1.get_win_by_type(wt) / self._total_battles) * 100
