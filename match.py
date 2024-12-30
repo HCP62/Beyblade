@@ -1,3 +1,5 @@
+from victory import Victory
+
 class Match:
     def __init__(self, bey1, bey2):
         self._battles = 0
@@ -19,14 +21,37 @@ class Match:
     def increment_battles(self):
         self._battles += 1
     
-    def get_winner(self):
+    def decide_winner(self):
         if (self._bey1_points >= 4):
-            self.winner = self.bey1
+            self._winner = self._bey1
         elif (self._bey2_points >= 4):
             self._winner = self._bey2
         else:
             self._winner = None
-        return self._winner
+    
+    def battle(self):
+        while (self._winner is None):
+            self.increment_battles()
+            print(f"Battle: {self._battles}")
+            print("Enter 1 for your beyblade, 2 for your opponent's beyblade")
+            win = int(input())
+            print("Enter the type of victory")
+            wt = ""
+            while not(wt == "spin" or wt == "over" or 
+                        wt == "burst" or wt == "x"):
+                wt = input()
+            if (win == 1):
+                victory = Victory(self._bey1, wt)
+                self._bey1.add_win(victory, wt)
+                self._bey1_points += victory.get_points()
+                print(f"{self._bey1.__str__()} wins by {wt} finish!")
+            elif (win == 2):
+                victory = Victory(self._bey2, wt)
+                self._bey2.add_win(victory, wt)
+                self._bey2_points += victory.get_points()
+                print(f"{self._bey2.__str__()} wins by {wt} finish!")
+            self.decide_winner()
+        print(f"{self._winner.__str__()} wins the match!")
     
     def get_bey1(self):
         return self._bey1

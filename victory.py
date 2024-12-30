@@ -2,7 +2,8 @@ class Victory:
     def __init__(self, bey, wt):
         self._bey = bey
         self._wt = wt
-        self._points = self._assign_points(wt)
+        self._points = 0
+        self._assign_points(wt)
 
     def get_bey(self):
         return self._bey
@@ -18,10 +19,10 @@ class Victory:
     
     def _assign_points(self, wt):
         if (wt == "spin"):
-            return 1
+            self._points = 1
         elif (wt == "over" or wt == "burst"):
-            return 2
+            self._points = 2
         elif (wt == "x"):
-            return 3
+            self._points = 3
         else:
-            return 0
+            self._points = 0

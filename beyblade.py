@@ -6,6 +6,7 @@ class Beyblade:
         self._ratchet = ratchet
         self._bit = bit
         self._wins = self.init_dict()
+        self._points = 0
     
     def init_dict(self):
         return {
@@ -27,8 +28,8 @@ class Beyblade:
     def get_bit(self):
         return self._bit
     
-    def add_win(self, wt):
-        self._wins[wt].append(Victory(self, wt))
+    def add_win(self, victory, wt):
+        self._wins[wt].append(victory)
     
     def get_win_by_type(self, wt):
         return len(self._wins[wt])
