@@ -37,6 +37,7 @@ class Match:
             win = int(input())
             print("Enter the type of victory")
             wt = ""
+
             while not(wt == "spin" or wt == "over" or 
                         wt == "burst" or wt == "x"):
                 wt = input()
@@ -45,11 +46,13 @@ class Match:
                 self._bey1.add_win(victory, wt)
                 self._bey1_points += victory.get_points()
                 print(f"{self._bey1.__str__()} wins by {wt} finish!")
+                
             elif (win == 2):
                 victory = Victory(self._bey2, wt)
                 self._bey2.add_win(victory, wt)
                 self._bey2_points += victory.get_points()
                 print(f"{self._bey2.__str__()} wins by {wt} finish!")
+
             self.decide_winner()
         print(f"{self._winner.__str__()} wins the match!")
     

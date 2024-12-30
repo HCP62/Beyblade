@@ -21,6 +21,9 @@ class Beyblade:
     
     def get_wins(self):
         return self._wins
+    
+    def get_win_count(self):
+        return len(self._wins["spin"]) + len(self._wins["over"]) + len(self._wins["burst"]) + len(self._wins["x"])
 
     def get_ratchet(self):
         return self._ratchet
