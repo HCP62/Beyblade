@@ -42,19 +42,27 @@ class Match:
                         wt == "burst" or wt == "x"):
                 wt = input()
             if (win == 1):
-                victory = Victory(self._bey1, wt)
-                self._bey1.add_win(victory, wt)
-                self._bey1_points += victory.get_points()
+                self._bey1.add_win(wt)
+                self._bey1_points += self.points_calc(wt)
                 print(f"{self._bey1.__str__()} wins by {wt} finish!")
-                
+
             elif (win == 2):
-                victory = Victory(self._bey2, wt)
-                self._bey2.add_win(victory, wt)
-                self._bey2_points += victory.get_points()
+                self._bey2.add_win(wt)
+                self._bey2_points += self.points_calc(wt)
                 print(f"{self._bey2.__str__()} wins by {wt} finish!")
 
             self.decide_winner()
         print(f"{self._winner.__str__()} wins the match!")
+    
+    def points_calc(self, wt):
+        if (wt == "spin"):
+            return 1
+        elif (wt == "over" or wt == "burst"):
+            return 2
+        elif (wt == "x"):
+            return 3
+        else:
+            return 0
     
     def get_bey1(self):
         return self._bey1

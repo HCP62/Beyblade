@@ -5,16 +5,8 @@ class Beyblade:
         self._blade = blade
         self._ratchet = ratchet
         self._bit = bit
-        self._wins = self.init_dict()
+        self._wins = []
         self._points = 0
-    
-    def init_dict(self):
-        return {
-            "spin": [],
-            "over": [],
-            "burst": [],
-            "x": []
-        }
     
     def get_blade(self):
         return self._blade
@@ -22,8 +14,8 @@ class Beyblade:
     def get_wins(self):
         return self._wins
     
-    def get_win_count(self):
-        return len(self._wins["spin"]) + len(self._wins["over"]) + len(self._wins["burst"]) + len(self._wins["x"])
+    def get_total_wins(self):
+        return len(self._wins)
 
     def get_ratchet(self):
         return self._ratchet
@@ -31,11 +23,16 @@ class Beyblade:
     def get_bit(self):
         return self._bit
     
-    def add_win(self, victory, wt):
-        self._wins[wt].append(victory)
+    def add_win(self, wt):
+        victory = Victory(self, wt)
+        self._wins.append(victory)
     
     def get_win_by_type(self, wt):
-        return len(self._wins[wt])
+        count = 0
+        for win in self._wins:
+            if (win.get_wt() == wt):
+                count += 1
+        return count
 
     def __str__(self):
         return f"{self._blade} {self._ratchet}{self._bit}"

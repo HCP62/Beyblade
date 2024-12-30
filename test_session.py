@@ -2,7 +2,6 @@ from match import Match
 
 class TestSession:
     def __init__(self, bey1, bey2):
-        self._matches = []
         self._total_battles = 0
         self._bey1 = bey1
         self._bey2 = bey2
@@ -25,7 +24,7 @@ class TestSession:
 
     """meaning this isn't working"""
     def calc_wr(self):
-        return float(self._bey1.get_win_count() / self._total_battles) * 100
+        return float(self._bey1.get_total_wins() / self._total_battles) * 100
     
     def calc_by_type(self, wt):
         return float(self._bey1.get_win_by_type(wt) / self._total_battles) * 100
