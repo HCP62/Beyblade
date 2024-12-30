@@ -1,9 +1,19 @@
+from victory import Victory
+
 class Beyblade:
     def __init__(self, blade, ratchet, bit):
         self._blade = blade
         self._ratchet = ratchet
         self._bit = bit
-        self._wins = []
+        self._wins = self.init_dict()
+    
+    def init_dict(self):
+        return {
+            "spin": [],
+            "over": [],
+            "burst": [],
+            "x": []
+        }
     
     def get_blade(self):
         return self._blade
@@ -16,6 +26,12 @@ class Beyblade:
 
     def get_bit(self):
         return self._bit
+    
+    def add_win(self, wt):
+        self._wins[wt].append(Victory(self, wt))
+    
+    def get_win_by_type(self, wt):
+        return len(self._wins[wt])
 
     def __str__(self):
         return f"{self._blade} {self._ratchet}{self._bit}"

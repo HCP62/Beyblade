@@ -1,11 +1,17 @@
 class Match:
     def __init__(self, bey1, bey2):
-        self._battles = 0
+        self._battles = []
         self._bey1 = bey1
         self._bey2 = bey2
         self._bey1_points = 0
         self._bey2_points = 0
         self._winner = None
+    
+    def get_battles(self):
+        return len(self._battles)
+    
+    def add_battle(self, battle):
+        self._battles.append(battle)
     
     def get_bey1_points(self):
         return self._bey1_points
