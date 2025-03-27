@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Beyblade Battle Counter</title>
+    <style>
+        .hidden { display: none; }
+        .battle-container { margin: 20px 0; }
+        .victory-buttons { margin: 10px 0; }
+        button { margin: 5px; padding: 10px; }
+        .stats-container {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .stats-container h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .stats-container h4 {
+            margin: 10px 0;
+            color: #666;
+        }
+        .stats-container p {
+            margin: 5px 0;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div id="creation-form">
+        <h2>Create New Match Set (10 Matches)</h2>
+        <div>
+            <h3>Beyblade 1</h3>
+            <input type="text" id="bey1-blade" placeholder="Blade" required>
+            <input type="text" id="bey1-ratchet" placeholder="Ratchet" required>
+            <input type="text" id="bey1-bit" placeholder="Bit" required>
+        </div>
+        <div>
+            <h3>Beyblade 2</h3>
+            <input type="text" id="bey2-blade" placeholder="Blade" required>
+            <input type="text" id="bey2-ratchet" placeholder="Ratchet" required>
+            <input type="text" id="bey2-bit" placeholder="Bit" required>
+        </div>
+        <button onclick="createMatchSet()">Start Match Set</button>
+    </div>
+
+    <div id="battle-screen" class="hidden">
+        <h2>Battle Screen</h2>
+        <div id="match-progress">Match: 1/10</div>
+        <div id="score-display"></div>
+        <div class="battle-container">
+            <button id="bey1-button" onclick="selectWinner(1)"></button>
+            <button id="bey2-button" onclick="selectWinner(2)"></button>
+        </div>
+        <div id="victory-buttons" class="victory-buttons hidden">
+            <button onclick="recordVictory('spin')">Spin</button>
+            <button onclick="recordVictory('over')">Over</button>
+            <button onclick="recordVictory('burst')">Burst</button>
+            <button onclick="recordVictory('x')">X</button>
+        </div>
+        <div id="stats-container" class="stats-container">
+            <h3>Statistics for Beyblade 1</h3>
+            <div id="win-rates"></div>
+            <div id="finish-types"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentSet = null;
+        let selectedWinner = null;
+        let currentBey1Name = '';
+        let currentBey2Name = '';
+
+        async function createMatchSet() {
+            try {
+                const matchData = {
+                    bey1: {
+                        blade: document.getElementById('bey1-blade').value,
+                        ratchet: document.getElementById('bey1-ratchet').value,
+                        bit: document.getElementById('bey1-bit').value
+                    },
+                    bey2: {
+                        blade: document.getElementById('bey2-blade').value,
+                        ratchet: document.getElementById('bey2-ratchet').value,
+                        bit: document.getElementById('bey2-bit').value
+                    }
+                };
+
+                console.log('Sending match data:', matchData);  // Debug log
+
+                const response = await fetch('/create_matchset', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(matchData)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('Received response:', data);  // Debug log
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                currentSet = data.set_id;
+                currentBey1Name = data.bey1;
+                currentBey2Name = data.bey2;
+                
+                document.getElementById('creation-form').classList.add('hidden');
+                document.getElementById('battle-screen').classList.remove('hidden');
+                document.getElementById('bey1-button').textContent = currentBey1Name;
+                document.getElementById('bey2-button').textContent = currentBey2Name;
+                document.querySelector('#stats-container h3').textContent = 
+                    `Statistics for ${currentBey1Name} vs ${currentBey2Name}`;
+                document.getElementById('match-progress').textContent = 'Match: 1/10';
+                updateScore({bey1_points: 0, bey2_points: 0, battles: 0});
+            } catch (error) {
+                console.error('Error creating match:', error);
+                alert('Error creating match: ' + error.message);
+            }
+        }
+
+        function selectWinner(beyNumber) {
+            selectedWinner = beyNumber;
+            document.getElementById('victory-buttons').classList.remove('hidden');
+        }
+
+        async function recordVictory(victoryType) {
+            try {
+                const response = await fetch('/record_battle', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        set_id: currentSet,
+                        winner: selectedWinner,
+                        victory_type: victoryType
+                    })
+                });
+                
+                const data = await response.json();
+                updateScore(data);
+                updateStats(data.stats);  // This will now update after every battle
+                
+                // Handle match ending
+                if (data.match_over) {
+                    alert(`Match Complete! ${data.winner} wins!`);
+                    const nextMatchNumber = data.matches_completed + 1;
+                    if (nextMatchNumber <= 10) {
+                        document.getElementById('match-progress').textContent = 
+                            `Match: ${nextMatchNumber}/10`;
+                        updateScore({battles: 0, bey1_points: 0, bey2_points: 0});
+                    }
+                }
+                
+                // Handle entire set completion
+                if (data.set_complete) {
+                    alert(`Match Set Complete!\nFinal Stats:
+                        Match Win Rate: ${data.stats.match_win_rate}% (${data.stats.match_wins}/10 matches)
+                        Battle Win Rate: ${data.stats.battle_win_rate}%`);
+                    document.getElementById('battle-screen').classList.add('hidden');
+                    document.getElementById('creation-form').classList.remove('hidden');
+                }
+                
+                document.getElementById('victory-buttons').classList.add('hidden');
+                selectedWinner = null;
+            } catch (error) {
+                console.error('Error recording victory:', error);
+                alert('Error recording victory: ' + error.message);
+            }
+        }
+
+        function updateScore(data) {
+            document.getElementById('score-display').textContent = 
+                `Battle: ${data.battles} | Score: ${data.bey1_points} - ${data.bey2_points}`;
+        }
+
+        function updateStats(stats) {
+            const winRatesElement = document.getElementById('win-rates');
+            winRatesElement.innerHTML = `
+                <h4>Win Rates:</h4>
+                <p>Match Win Rate: ${stats.match_win_rate}% (${stats.match_wins}/${stats.matches_played} matches won)</p>
+                <p>Battle Win Rate: ${stats.battle_win_rate}% (${stats.total_battles} battles, ${stats.victory_types.spin + stats.victory_types.over + stats.victory_types.burst + stats.victory_types.x} won)</p>
+            `;
+
+            const finishTypesElement = document.getElementById('finish-types');
+            finishTypesElement.innerHTML = '<h4>Finish Type Distribution:</h4>';
+            for (const [type, percentage] of Object.entries(stats.victory_percentages)) {
+                const count = stats.victory_types[type];
+                finishTypesElement.innerHTML += `
+                    <p>${type}: ${percentage}% (${count} wins)</p>
+                `;
+            }
+        }
+    </script>
+</body>
+</html> 

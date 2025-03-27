@@ -69,3 +69,17 @@ class Match:
     
     def get_bey2(self):
         return self._bey2
+
+    def battle_gui(self, winner_bey, victory_type):
+        """Handle a single battle through the GUI"""
+        self.increment_battles()
+        
+        if winner_bey == self._bey1:
+            self._bey1.add_win(victory_type)
+            self._bey1_points += self.points_calc(victory_type)
+        else:
+            self._bey2.add_win(victory_type)
+            self._bey2_points += self.points_calc(victory_type)
+        
+        self.decide_winner()
+        return self._winner
